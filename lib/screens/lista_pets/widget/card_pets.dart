@@ -1,5 +1,5 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:passaros_nordeste/screens/passaros_detalhe/DetalhesAnimal.dart';
 
 class CardImage extends StatefulWidget {
   final Map<String, dynamic> animalData;
@@ -31,27 +31,46 @@ class _CardImageState extends State<CardImage> {
         ),
       ),
       onDismissed: (direction) async {
-        await widget.onDelete(); // Chama a função de remoção
-        setState(() {}); // Atualiza o estado para reconstruir o widget
+        await widget.onDelete();
+        _showDeleteSnackbar();
       },
       child: InkWell(
         onTap: () {
-          // Adicionar detalhes
+          // Navegar para a tela de detalhes editáveis ao clicar no card
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  DetalhesAnimal(animalData: widget.animalData),
+            ),
+          );
         },
-        child: Card(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  "Descrição: ${widget.animalData["description"] ?? ""}\n" +
-                      "Nome: ${widget.animalData["name"] ?? ""}\n" +
-                      "Região: ${widget.animalData["region"] ?? ""}",
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          child: Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "Descrição: ${widget.animalData["description"] ?? ""}\n" +
+                        "Nome: ${widget.animalData["name"] ?? ""}\n" +
+                        "Região: ${widget.animalData["region"] ?? ""}",
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showDeleteSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Animal removido com sucesso!'),
       ),
     );
   }

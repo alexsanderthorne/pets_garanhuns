@@ -15,7 +15,7 @@ class _ListaPassarosState extends State<ListaPassaros> {
   @override
   void initState() {
     super.initState();
-    getDataFromFirebase(); // Chama a função ao iniciar o widget
+    getDataFromFirebase();
   }
 
   Future<void> getDataFromFirebase() async {
@@ -30,7 +30,7 @@ class _ListaPassarosState extends State<ListaPassaros> {
       if (dataSnapshot.value != null && dataSnapshot.value is Map) {
         (dataSnapshot.value as Map).forEach((key, value) {
           Map<String, dynamic> animalData = {
-            "id": key, // Adiciona o ID como parte dos dados para exclusão
+            "id": key,
             "description": value["description"],
             "name": value["name"],
             "region": value["region"],
@@ -47,7 +47,7 @@ class _ListaPassarosState extends State<ListaPassaros> {
       print('Error fetching data from Firebase: $error');
     }
 
-    setState(() {}); // Atualiza o estado para reconstruir o widget com os novos dados
+    setState(() {});
   }
 
   Future<void> deleteAnimal(String animalId) async {
@@ -57,7 +57,7 @@ class _ListaPassarosState extends State<ListaPassaros> {
           .child('pets')
           .child(animalId)
           .remove();
-      getDataFromFirebase(); // Atualiza a lista após a remoção
+      getDataFromFirebase();
     } catch (error) {
       print('Error deleting animal from Firebase: $error');
     }
@@ -83,26 +83,35 @@ class _ListaPassarosState extends State<ListaPassaros> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: dataList.isEmpty
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : ListView.builder(
-                      itemCount: dataList.length,
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> animalData = dataList[index];
-                        return CardImage(
-                          animalData: animalData,
-                          onDelete: () => deleteAnimal(animalData["id"]),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
+        child: dataList.isEmpty
+            ? _buildEmptyListWidget()
+            : ListView.builder(
+                itemCount: dataList.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> animalData = dataList[index];
+                  return CardImage(
+                    animalData: animalData,
+                    onDelete: () => deleteAnimal(animalData["id"]),
+                  );
+                },
+              ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyListWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('asset/cute_dog.jpg',
+              height: 200, width: 200), // Substitua pelo caminho do seu GIF
+          const SizedBox(height: 16),
+          Text(
+            'Nenhum animal encontrado.',
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
       ),
     );
   }
