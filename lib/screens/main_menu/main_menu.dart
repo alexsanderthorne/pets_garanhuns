@@ -9,6 +9,58 @@ class MainMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('PetStop'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: AssetImage(
+                        'asset/cat2.png'),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Nome do App',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    'Versão 1.0.0',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              title: Text('Lista de Pets'),
+              onTap: () {
+                Navigator.pushNamed(context, '/lista_pets');
+              },
+            ),
+            ListTile(
+              title: Text('Cadastrar Animal'),
+              onTap: () {
+                Navigator.pushNamed(context, '/cadastrar_passaro');
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: ScrollConfiguration(
           behavior: const ScrollBehavior(),
@@ -17,10 +69,6 @@ class MainMenu extends StatelessWidget {
             child: Column(
               children: const [
                 MainMenuSearch(),
-                SizedBox(
-                  height: 25,
-                ),
-                //MainMenuHeader(),
                 SizedBox(
                   height: 25,
                 ),

@@ -13,6 +13,8 @@ class CadastroForm extends StatefulWidget {
 }
 
 class _CadastroFormState extends State<CadastroForm> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController foodController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController namePassaroController = TextEditingController();
@@ -100,6 +102,9 @@ class _CadastroFormState extends State<CadastroForm> {
               ),
             ),
             Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode
+                  .disabled, // Desative a validação automática inicial
               child: Column(
                 children: <Widget>[
                   const SizedBox(
@@ -138,7 +143,6 @@ class _CadastroFormState extends State<CadastroForm> {
                     controller: namePassaroController,
                     decoration: const InputDecoration(
                       labelText: 'Nome do Pet',
-                     
                       border: OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
@@ -158,7 +162,6 @@ class _CadastroFormState extends State<CadastroForm> {
                     controller: foodController,
                     decoration: InputDecoration(
                       labelText: 'Comidas',
-                     
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
@@ -178,7 +181,6 @@ class _CadastroFormState extends State<CadastroForm> {
                     controller: descriptionController,
                     decoration: InputDecoration(
                       labelText: 'Descrição do Pet',
-                    
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
@@ -198,7 +200,6 @@ class _CadastroFormState extends State<CadastroForm> {
                     controller: namePessoaController,
                     decoration: InputDecoration(
                       labelText: 'Seu Nome',
-                      
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
@@ -218,7 +219,6 @@ class _CadastroFormState extends State<CadastroForm> {
                     controller: cidadePessoaController,
                     decoration: InputDecoration(
                       labelText: 'Número para contato',
-                    
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
@@ -238,11 +238,19 @@ class _CadastroFormState extends State<CadastroForm> {
                     title: 'Salvar Pet',
                     icon: Icons.save,
                     onCLick: (() {
-                      saveImage(
+                      // Chame a validação manualmente
+                      if (_formKey.currentState!.validate()) {
+                        // Se a validação for bem-sucedida, salve os dados
+                        saveImage(
                           fileName:
-                              '${namePassaroController.text}_${namePessoaController.text}');
-                      saveData();
-                      Navigator.pop(context);
+                              '${namePassaroController.text}_${namePessoaController.text}',
+                        );
+                        saveData();
+                        Navigator.pop(context);
+                      } else {
+                        // Se a validação falhar, exiba uma mensagem ou faça algo apropriado
+                        print('Preencha todos os campos obrigatórios!');
+                      }
                     }),
                   ),
                 ],
@@ -299,7 +307,6 @@ Widget custonButtom({
     height: 50,
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
-        
         backgroundColor: const Color.fromRGBO(
           165,
           70,
