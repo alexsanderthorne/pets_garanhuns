@@ -1,16 +1,27 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:passaros_nordeste/screens/lista_pets/widget/card_pets.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class ListaPassaros extends StatelessWidget {
+class ListaPassaros extends StatefulWidget {
   const ListaPassaros({Key? key}) : super(key: key);
 
-  Future<List<Map<String, dynamic>>> getDataFromFirebase() async {
+  @override
+  _ListaPassarosState createState() => _ListaPassarosState();
+}
+
+class _ListaPassarosState extends State<ListaPassaros> {
+  late List<Map<String, dynamic>> dataList;
+
+  @override
+  void initState() {
+    super.initState();
+    getDataFromFirebase(); // Chama a função ao iniciar o widget
+  }
+
+  Future<void> getDataFromFirebase() async {
     final DatabaseReference reference =
         FirebaseDatabase.instance.ref().child('pets');
-    List<Map<String, dynamic>> dataList = [];
+    dataList = [];
 
     try {
       DatabaseEvent event = await reference.once();
@@ -19,10 +30,14 @@ class ListaPassaros extends StatelessWidget {
       if (dataSnapshot.value != null && dataSnapshot.value is Map) {
         (dataSnapshot.value as Map).forEach((key, value) {
           Map<String, dynamic> animalData = {
+            "id": key, // Adiciona o ID como parte dos dados para exclusão
+            "description": value["description"],
             "name": value["name"],
             "region": value["region"],
-            "description": value["description"],
-            "user": value["user"],
+            "user": {
+              "name": value["name"],
+              "city": value["city"],
+            },
           };
 
           dataList.add(animalData);
@@ -32,7 +47,20 @@ class ListaPassaros extends StatelessWidget {
       print('Error fetching data from Firebase: $error');
     }
 
-    return dataList;
+    setState(() {}); // Atualiza o estado para reconstruir o widget com os novos dados
+  }
+
+  Future<void> deleteAnimal(String animalId) async {
+    try {
+      await FirebaseDatabase.instance
+          .ref()
+          .child('pets')
+          .child(animalId)
+          .remove();
+      getDataFromFirebase(); // Atualiza a lista após a remoção
+    } catch (error) {
+      print('Error deleting animal from Firebase: $error');
+    }
   }
 
   @override
@@ -58,31 +86,20 @@ class ListaPassaros extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: getDataFromFirebase(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
+              child: dataList.isEmpty
+                  ? const Center(
                       child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Erro: ${snapshot.error}'),
-                    );
-                  } else {
-                    List<Map<String, dynamic>> dataList = snapshot.data ?? [];
-                    return ListView.builder(
+                    )
+                  : ListView.builder(
                       itemCount: dataList.length,
                       itemBuilder: (context, index) {
                         Map<String, dynamic> animalData = dataList[index];
                         return CardImage(
                           animalData: animalData,
+                          onDelete: () => deleteAnimal(animalData["id"]),
                         );
                       },
-                    );
-                  }
-                },
-              ),
+                    ),
             ),
           ],
         ),
